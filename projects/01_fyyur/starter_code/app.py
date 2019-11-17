@@ -12,6 +12,7 @@ import logging
 from logging import Formatter, FileHandler
 from flask_wtf import Form
 from forms import *
+from models import *
 #----------------------------------------------------------------------------#
 # App Config.
 #----------------------------------------------------------------------------#
@@ -23,11 +24,12 @@ db = SQLAlchemy(app)
 
 # TODO: connect to a local postgresql database
 
+
 #----------------------------------------------------------------------------#
 # Models.
 #----------------------------------------------------------------------------#
 
-#Test change
+
 
 class Venue(db.Model):
     __tablename__ = 'Venue'
