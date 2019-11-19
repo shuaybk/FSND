@@ -33,8 +33,10 @@ migrate = Migrate(app, db)
 
 
 
+
+
 class Venue(db.Model):
-    __tablename__ = 'Venue'
+    __tablename__ = 'venue'
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String)
@@ -44,11 +46,12 @@ class Venue(db.Model):
     phone = db.Column(db.String(120))
     image_link = db.Column(db.String(500))
     facebook_link = db.Column(db.String(120))
+    artists = db.relationship("Artist", secondary="show", backref=db.backref('venues', lazy=True))
 
     # TODO: implement any missing fields, as a database migration using Flask-Migrate
 
 class Artist(db.Model):
-    __tablename__ = 'Artist'
+    __tablename__ = 'artist'
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String)
@@ -58,10 +61,28 @@ class Artist(db.Model):
     genres = db.Column(db.String(120))
     image_link = db.Column(db.String(500))
     facebook_link = db.Column(db.String(120))
+    venues = db.relationship("Venue", secondary="show", backref=db.backref('artists', lazy=True))
 
-    # TODO: implement any missing fields, as a database migration using Flask-Migrate
+
+class Show(db.Model):
+    __tablename__ = 'show'
+
+    venue_id = db.Column(db.Integer, db.ForeignKey('venue.id'), primary_key=True)
+    venue_name = db.Column(db.String)
+    artist_id = db.Column(db.Integer, db.ForeignKey('artist.id'), primary_key=True)
+    artist_name = db.Column(db.String)
+    artist_image_link = db.Column(db.String)
+    start_time = db.Column(db.String)
+    venue = db.relationship("Venue", backref=db.backref('shows', cascade="all, delete-orphan"))
+    artist = db.relationship("Artist", backref=db.backref('shows', cascade="all, delete-orphan"))
+
+
+
+# TODO: implement any missing fields, as a database migration using Flask-Migrate
 
 # TODO Implement Show and Artist models, and complete all model relationships and properties, as a database migration.
+
+
 
 
 
@@ -75,7 +96,8 @@ def format_datetime(value, format='medium'):
       format="EEEE MMMM, d, y 'at' h:mma"
   elif format == 'medium':
       format="EE MM, dd, y h:mma"
-  return babel.dates.format_datetime(date, format)
+  return date.strftime('%a %b %d, %Y at %I:%M %p')
+#  return babel.dates.format_datetime(date, format)
 
 app.jinja_env.filters['datetime'] = format_datetime
 
@@ -425,6 +447,8 @@ def create_artist_submission():
 
 #  Shows
 #  ----------------------------------------------------------------
+
+
 
 @app.route('/shows')
 def shows():
